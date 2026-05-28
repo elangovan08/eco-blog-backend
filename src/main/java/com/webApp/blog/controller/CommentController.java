@@ -1,59 +1,47 @@
 package com.webApp.blog.controller;
 
-import com.webApp.blog.model.Comment;
-import com.webApp.blog.model.Post;
-import com.webApp.blog.model.User;
-import com.webApp.blog.repository.CommentRepository;
-import com.webApp.blog.repository.PostRepository;
-import com.webApp.blog.repository.UserRepository;
-
-import jakarta.servlet.http.HttpSession;
+import com.webApp.blog.dto.request.CommentRequestDTO;
+import com.webApp.blog.dto.response.CommentResponseDTO;
+import com.webApp.blog.service.CommentService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
-@RequestMapping("/comments")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
 public class CommentController {
 
-    @Autowired
-    private CommentRepository commentRepo;
+    private final CommentService commentService;
 
-    @Autowired
-    private PostRepository postRepo;
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
 
-    @Autowired
-    private UserRepository userRepo;
-   @PostMapping("/add/{postId}")
-   public String addComment(@PathVariable Long postId,
-                            @ModelAttribute("comment") @Valid Comment comment,
-                            BindingResult result,
-                            HttpSession session,
-                            Model model) {
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<List<CommentResponseDTO>> getCommentsByPost(@PathVariable Long postId) {
+        return ResponseEntity.ok(commentService.getCommentsByPost(postId));
+    }
 
-       if (result.hasErrors()) {
-           return "redirect:/posts/" + postId + "?error=true";
-       }
+    @PostMapping("/posts/{postId}/comments")
+    public ResponseEntity<CommentResponseDTO> addComment(
+            @PathVariable Long postId,
+            @Valid @RequestBody CommentRequestDTO request
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(postId, request));
+    }
 
-       // Get the post from repository
-       Post post = postRepo.findById(postId)
-               .orElseThrow(() -> new IllegalArgumentException("Invalid Post ID: " + postId));
-       comment.setPost(post);
-
-       // Simulate logged-in user retrieval (later to be replaced with Spring Security)
-       String username = (String) session.getAttribute("username");
-
-       // Safely extract User from Optional
-       User user = userRepo.findByUsername(username)
-               .orElseThrow(() -> new IllegalArgumentException("Invalid user: " + username));
-
-       comment.setUser(user);
-       commentRepo.save(comment);
-
-       return "redirect:/posts/" + postId;
-   }
-
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
+        commentService.deleteComment(commentId);
+        return ResponseEntity.noContent().build();
+    }
 }

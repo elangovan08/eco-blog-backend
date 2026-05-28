@@ -1,28 +1,30 @@
 package com.webApp.blog.controller;
 
-import com.webApp.blog.model.Contact;
+import com.webApp.blog.dto.request.ContactRequestDTO;
+import com.webApp.blog.dto.response.ApiMessageResponseDTO;
+import com.webApp.blog.service.ContactService;
 import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
+@RequestMapping("/api/contact")
 public class ContactController {
 
-    @GetMapping("/support")
-    public String contactForm(Model model) {
-        model.addAttribute("contact", new Contact());
-        return "contact";
+    private final ContactService contactService;
+
+    public ContactController(ContactService contactService) {
+        this.contactService = contactService;
     }
 
-    @PostMapping("/submitContact")
-    public String submitContact(@Valid @ModelAttribute("contact") Contact contact,
-                                BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            return "contact";
-        }
-        model.addAttribute("message", "Thank you for contacting us!");
-        return "contact";
+    @PostMapping
+    public ResponseEntity<ApiMessageResponseDTO> submitContact(@Valid @RequestBody ContactRequestDTO request) {
+        contactService.submit(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiMessageResponseDTO("Thank you for contacting us."));
     }
 }

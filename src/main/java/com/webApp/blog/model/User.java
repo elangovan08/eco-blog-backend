@@ -1,5 +1,6 @@
 package com.webApp.blog.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -21,6 +22,7 @@ public class User {
 
     @NotEmpty(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
+    @JsonIgnore
     private String password;
 
     @NotEmpty(message = "Email is required")
@@ -30,12 +32,15 @@ public class User {
     private String role;
 
     @ManyToMany(mappedBy = "likedBy")
+    @JsonIgnore
     private Set<Post> likedPosts = new HashSet<>();
 
     @ManyToMany(mappedBy = "bookmarkedBy")
+    @JsonIgnore
     private Set<Post> bookmarkedPosts = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
 
     // Getters & Setters

@@ -18,7 +18,6 @@
             font-family: 'Segoe UI', sans-serif;
         }
 
-        /* Hero Section */
         .hero {
             background: url('https://png.pngtree.com/thumb_back/fw800/background/20250619/pngtree-green-tree-blossoming-on-earth-with-butterflies-symbolizing-nature-and-environmental-image_17441652.jpg') no-repeat center center;
             background-size: cover;
