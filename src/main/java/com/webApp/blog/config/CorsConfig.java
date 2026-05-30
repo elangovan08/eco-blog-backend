@@ -19,7 +19,9 @@ public class CorsConfig {
                                 "https://eco-blog-frontend-nine.vercel.app"
                         )
                         .allowedMethods("*")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+
             }
         };
     }
